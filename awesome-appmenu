@@ -195,6 +195,10 @@ class Menu():
 
     # Find and group launchers into categories
     for directory in launcherpaths:
+
+      # Skip any directory that doesn't exist
+      if not os.path.isdir(directory): continue
+
       for root, dirs, files in os.walk(directory):
         for name in files:
           if name[-8:] == ".desktop":
@@ -302,6 +306,17 @@ def load_config():
     try: categories = menurc.categories
     except AttributeError:
       print("Warning: menurc.py does not have categories. Using default.")
+
+  # Warnings about any non-existent directories
+  for directory in launcherpaths:
+    if not os.path.isdir(directory):
+      print("Warning: search path " + directory + " does not exist:")
+      print("No launchers will be searched for there.")
+
+  for directory in iconpaths:
+    if not os.path.isdir(directory):
+      print("Warning: search path " + directory + " does not exist:")
+      print("No icons will be searched for there.")
 
   return launcherpaths, iconpaths, categories
 
