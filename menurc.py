@@ -9,16 +9,16 @@ home = os.environ["HOME"]
 launcherpaths=["/usr/share/applications", home + "/.local/share/applications"]
 iconpaths=["/usr/share/icons/Adwaita", "/usr/share/icons/oxygen", "/usr/share/icons/hicolor"]
 
-""" List of categories. Each inner list stores Category name in .desktop file,
-    category name displayed in menu, and icon generic name (in that order) """
-categories = [ ["Utility",     "Accessories", "applications-utilities"],
-               ["Development", "Development", "applications-development"],
-               ["Education",   "Education",   "applications-science"],
-               ["Game",        "Games",       "applications-games"],
-               ["Graphics",    "Graphics",    "applications-graphics"],
-               ["Network",     "Internet",    "applications-internet"],
-               ["Office",      "Office",      "applications-office"],
-               ["AudioVideo",  "MultiMedia",  "applications-multimedia"],
-               ["Settings",    "Settings",    "applications-accessories"],
-               ["System",      "System",      "applications-system"],
-               ["Wine",        "Wine",        "wine"] ]
+""" List of categories """
+"""             Name in .desktop file   Display name    Icon """
+categories = [ ["Utility",              "Accessories",  "applications-utilities"],
+               ["Development",          "Development",  "applications-development"],
+               ["Education",            "Education",    "applications-science"],
+               ["Game",                 "Games",        "applications-games"],
+               ["Graphics",             "Graphics",     "applications-graphics"],
+               ["Network",              "Internet",     "applications-internet"],
+               ["Office",               "Office",       "applications-office"],
+               ["AudioVideo",           "MultiMedia",   "applications-multimedia"],
+               ["Settings",             "Settings",     "applications-accessories"],
+               ["System",               "System",       "applications-system"],
+               ["Wine",                 "Wine",         "wine"] ]
