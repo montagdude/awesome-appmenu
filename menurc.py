@@ -18,7 +18,7 @@ categories = [ ["Utility",              "Accessories",  "applications-utilities"
                ["Graphics",             "Graphics",     "applications-graphics"],
                ["Network",              "Internet",     "applications-internet"],
                ["Office",               "Office",       "applications-office"],
-               ["AudioVideo",           "MultiMedia",   "applications-multimedia"],
+               ["AudioVideo",           "Multimedia",   "applications-multimedia"],
                ["Settings",             "Settings",     "applications-accessories"],
                ["System",               "System",       "applications-system"],
                ["Wine",                 "Wine",         "wine"] ]

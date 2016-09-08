@@ -7,6 +7,7 @@ Features of awesome-appmenu:
 * Supports icons
 * Fully configurable search paths for launchers and icons
 * Fully configurable categories
+* Searches recursively for launchers in specified search paths
 * Properly ignores .desktop files with NoDisplay=true, and does not write empty categories
 * Ungrouped launchers are automatically put into a Miscellaneous category
 
@@ -18,10 +19,8 @@ Just type awesome-appmenu. The file appmenu.lua will be placed in $HOME/.config/
 
 Using the menu:
 Put in your rc.lua: 
-[CODE]local appmenu = require("appmenu")[/CODE]
-.
-.
-.
-[CODE]mymainmenu = awful.menu({ items = { { "applications", appmenu.Appmenu }, ...[/CODE]
+local appmenu = require("appmenu")
+...
+mymainmenu = awful.menu({ items = { { "applications", appmenu.Appmenu }, ...
 
 You can also use the menus for categories individually, e.g., by referencing appmenu.Applications, appmenu.Office, etc.
