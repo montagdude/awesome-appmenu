@@ -20,7 +20,12 @@ Just type awesome-appmenu. The file appmenu.lua will be placed in $HOME/.config/
 Using the menu:
 Put in your rc.lua: 
 local appmenu = require("appmenu")
+
 ...
+
 mymainmenu = awful.menu({ items = { { "applications", appmenu.Appmenu }, ...
 
 You can also use the menus for categories individually, e.g., by referencing appmenu.Applications, appmenu.Office, etc.
+
+Screenshot of the menu's appearance:
+![alt tag](https://raw.githubusercontent.com/montagdude/awesome-appmenu/master/awesome-appmenu.png)
