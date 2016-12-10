@@ -26,6 +26,8 @@ try:
 except:
   config = False
 
+def basename(filename): return filename.split("/")[-1]
+
 ################################################################################
 # Launcher: finds and stores information for a .desktop file
 class Launcher():
@@ -33,6 +35,7 @@ class Launcher():
   def __init__(self, launcherfile, use_icon=True, 
                icon_search_paths=["/usr/share/icons/hicolor"]):
     self.Name = None
+    self.FileName = None
     self.Exec = None
     self.IconGenericName = None
     self.Icon = None
@@ -47,6 +50,7 @@ class Launcher():
   # Reads info from launcher file
   def getInfo(self, launcherfile, use_icon):
 
+    self.FileName = basename(launcherfile)
     f = open(launcherfile)
     for line in f:
       splitline = line.split("=")
@@ -173,6 +177,7 @@ class Menu():
     self.Categories = []
     self.NumCategories = 0
     self.miscidx = -1
+    self.Favorites = []
 
   # Adds a category
   def addCategory(self, category):
@@ -229,6 +234,21 @@ class Menu():
 
     for category in self.Categories: category.sortLaunchers()
 
+  # Creates favorites list
+  def createFavoritesList(self, favorites):
+
+    for favorite in favorites:
+      found = False
+      for category in self.Categories:
+        for launcher in category.Launchers:
+          if launcher.FileName == favorite:
+            found = True
+            self.Favorites.append(launcher)
+            break
+        if found: break
+      if not found:
+        print("Warning: could not find a launcher file named " + favorite + ".") 
+
   # Writes menu for awesomeWM
   def write(self):
 
@@ -251,6 +271,16 @@ class Menu():
         f.write("    { '" + launcher.Name + "', '" + launcher.Exec + "'")
         if launcher.Icon: 
           f.write(", '" + launcher.Icon + "'")
+        f.write(" },\n")
+      f.write("}\n\n")
+
+    # Write favorites list if not empty
+    if len(self.Favorites) != 0:
+      f.write("appmenu.Favorites = {\n")
+      for favorite in self.Favorites:
+        f.write("    { '" + favorite.Name + "', '" + favorite.Exec + "'")
+        if favorite.Icon: 
+          f.write(", '" + favorite.Icon + "'")
         f.write(" },\n")
       f.write("}\n\n")
 
@@ -291,6 +321,7 @@ def load_config():
                ["Settings",    "Settings",    "applications-accessories"],
                ["System",      "System",      "applications-system"],
                ["Wine",        "Wine",        "wine"] ]
+  favorites = []
 
   # Read configuration
   if config:
@@ -307,6 +338,10 @@ def load_config():
     except AttributeError:
       print("Warning: menurc.py does not have categories. Using default.")
 
+    try: favorites = menurc.favorites
+    except AttributeError:
+      print("Warning: menurc.py does not have favorites. Using default (none).")
+
   # Warnings about any non-existent directories
   for directory in launcherpaths:
     if not os.path.isdir(directory):
@@ -318,7 +353,7 @@ def load_config():
       print("Warning: search path " + directory + " does not exist:")
       print("No icons will be searched for there.")
 
-  return launcherpaths, iconpaths, categories
+  return launcherpaths, iconpaths, categories, favorites
 
 ################################################################################
 # Prints usage info
@@ -349,7 +384,7 @@ if __name__ == "__main__":
     exit(1)
 
   # Load configuration file
-  launcherpaths, iconpaths, categories = load_config()
+  launcherpaths, iconpaths, categories, favorites = load_config()
 
   # Create a list of categories
   if use_icon: print("Finding category icons ...")
@@ -367,6 +402,11 @@ if __name__ == "__main__":
   # Sort launchers
   print("Sorting launchers ...")
   appmenu.sortLaunchers()
+
+  # Get favorites menu
+  if len(favorites) > 0:
+    print("Creating favorites list ...")
+    appmenu.createFavoritesList(favorites)
 
   # Write menu for awesomeWM
   appmenu.write()

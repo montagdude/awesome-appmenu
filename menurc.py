@@ -22,3 +22,7 @@ categories = [ ["Utility",              "Accessories",  "applications-utilities"
                ["Settings",             "Settings",     "applications-accessories"],
                ["System",               "System",       "applications-system"],
                ["Wine",                 "Wine",         "wine"] ]
+
+""" Favorite applications by name of .desktop file. 
+    e.g., favorites = ["mozilla-firefox.desktop", "gimp.desktop"], etc. """
+favorites = []
