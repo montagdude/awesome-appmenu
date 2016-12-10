@@ -7,6 +7,7 @@ Features of awesome-appmenu:
 * Supports icons
 * Fully configurable search paths for launchers and icons
 * Fully configurable categories
+* Can create a custom Favorites menu
 * Searches recursively for launchers in specified search paths
 * Properly ignores .desktop files with NoDisplay=true, and does not write empty categories
 * Ungrouped launchers are automatically put into a Miscellaneous category
@@ -35,7 +36,7 @@ local appmenu = require("appmenu")
 
 mymainmenu = awful.menu({ items = { { "applications", appmenu.Appmenu }, ...
 
-You can also use the menus for categories individually, e.g., by referencing appmenu.Applications, appmenu.Office, etc.
+You can also use the menus for categories individually, e.g., by referencing appmenu.Applications, appmenu.Office, etc. If you put any .desktop files in the favorites list (favorites = [ ... ] in menurc.py), a favorites menu will also be created, which can be accessed via appmenu.Favorites.
 
 ================================================================================
 
