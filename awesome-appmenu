@@ -172,6 +172,7 @@ class Menu():
   def __init__(self):
     self.Categories = []
     self.NumCategories = 0
+    self.miscidx = -1
 
   # Adds a category
   def addCategory(self, category):
@@ -183,15 +184,14 @@ class Menu():
                    ["/usr/share/icons/hicolor"]):
 
     # See if there's a Miscellaneous category or create it if needed
-    miscidx = -1
     for i in range(self.NumCategories):
       if self.Categories[i].Name == "Miscellaneous":
-        miscidx = i
+        self.miscidx = i
         break
-    if miscidx == -1:
+    if self.miscidx == -1:
       self.addCategory(Category("Miscellaneous", "Miscellaneous", use_icon,
                                 "applications-other", icon_search_paths))
-      miscidx = self.NumCategories - 1
+      self.miscidx = self.NumCategories - 1
 
     # Find and group launchers into categories
     for directory in launcherpaths:
@@ -222,7 +222,7 @@ class Menu():
 
     # Put it in Miscellaneous category if nothing else fits
     if not launcher_grouped:
-      self.Categories[self.NumCategories-1].addLauncher(launcher)
+      self.Categories[self.miscidx].addLauncher(launcher)
 
   # Sorts launchers in each category
   def sortLaunchers(self):
