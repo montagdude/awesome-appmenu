@@ -26,8 +26,6 @@ try:
 except:
   config = False
 
-def basename(filename): return filename.split("/")[-1]
-
 ################################################################################
 # Launcher: finds and stores information for a .desktop file
 class Launcher():
@@ -50,7 +48,7 @@ class Launcher():
   # Reads info from launcher file
   def getInfo(self, launcherfile, use_icon):
 
-    self.FileName = basename(launcherfile)
+    self.FileName = launcherfile.split("/")[-1]
     f = open(launcherfile)
     for line in f:
       splitline = line.split("=")
@@ -60,12 +58,6 @@ class Launcher():
         # Libreoffice do this)
         if self.Name: break
         else: self.Name = splitline[1].strip()
-
-      elif splitline[0] == "Exec":
-        # Sometimes Exec lines have '=' if they set environment variables
-        self.Exec = ""
-        for i in range(1, len(splitline)):
-          self.Exec += splitline[i].strip()
 
       elif splitline[0] == "Icon":
         if use_icon:
@@ -83,6 +75,21 @@ class Launcher():
 
       elif splitline[0] == "NoDisplay":
         if (splitline[1].strip() == "true"): self.NoDisplay = True
+
+    # Read second time to get Exec line. This is because certain field codes
+    # in the Exec line use information earlier in the file.
+    f.seek(0)
+    for line in f:
+      splitline = line.split("=")
+
+      if splitline[0] == "Exec":
+        # Sometimes Exec lines have '=' if they set environment variables
+        self.Exec = splitline[1]
+        for i in range(2, len(splitline)):
+          self.Exec += "=" + splitline[i].strip()
+        #self.expandFieldCodes()
+        break
+    f.close()
 
   # Finds icon by generic name
   def findIcon(self, icon_search_paths):
