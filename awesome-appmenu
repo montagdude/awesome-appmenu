@@ -30,10 +30,14 @@ except:
 # Launcher: finds and stores information for a .desktop file
 class Launcher():
 
+  # Exec field flags
+  field_codes = ["%f", "%F", "%u", "%U", "%c", "%k", "%i"] 
+
   def __init__(self, launcherfile, use_icon=True, 
                icon_search_paths=["/usr/share/icons/hicolor"]):
     self.Name = None
     self.FileName = None
+    self.FilePath = None
     self.Exec = None
     self.IconGenericName = None
     self.Icon = None
@@ -44,11 +48,13 @@ class Launcher():
     self.getInfo(launcherfile, use_icon)
     if (use_icon and self.IconGenericName and not self.NoDisplay): 
       self.findIcon(icon_search_paths)
+    self.expandFieldCodes()
 
   # Reads info from launcher file
   def getInfo(self, launcherfile, use_icon):
 
     self.FileName = launcherfile.split("/")[-1]
+    self.FilePath = launcherfile
     f = open(launcherfile)
     for line in f:
       splitline = line.split("=")
@@ -58,6 +64,12 @@ class Launcher():
         # Libreoffice do this)
         if self.Name: break
         else: self.Name = splitline[1].strip()
+
+      elif splitline[0] == "Exec":
+        # Sometimes Exec lines have '=' if they set environment variables
+        self.Exec = splitline[1].strip()
+        for i in range(2, len(splitline)):
+          self.Exec += "=" + splitline[i].strip()
 
       elif splitline[0] == "Icon":
         if use_icon:
@@ -76,20 +88,26 @@ class Launcher():
       elif splitline[0] == "NoDisplay":
         if (splitline[1].strip() == "true"): self.NoDisplay = True
 
-    # Read second time to get Exec line. This is because certain field codes
-    # in the Exec line use information earlier in the file.
-    f.seek(0)
-    for line in f:
-      splitline = line.split("=")
-
-      if splitline[0] == "Exec":
-        # Sometimes Exec lines have '=' if they set environment variables
-        self.Exec = splitline[1]
-        for i in range(2, len(splitline)):
-          self.Exec += "=" + splitline[i].strip()
-        #self.expandFieldCodes()
-        break
     f.close()
+
+  # Expands field codes in Exec key
+  def expandFieldCodes(self):
+    for code in self.field_codes:
+
+      if self.Exec.find(code) != -1:
+        if code == "%c":
+          if self.Name: self.Exec = self.Exec.replace(code, self.Name)
+          else: self.Exec = self.Exec.replace(code, "")
+        elif code == "%k": 
+          if self.FilePath: self.Exec = self.Exec.replace(code, self.FilePath)
+          else: self.Exec = self.Exec.replace(code, "")
+        elif code == "%i": 
+          if (self.Icon):
+            self.Exec = self.Exec.replace(code, "--icon " + self.Icon)
+          else: self.Exec = self.Exec.replace(code, "")
+   
+        # Other field codes are not relevant for launching from appmenu
+        else: self.Exec = self.Exec.replace(code, "")
 
   # Finds icon by generic name
   def findIcon(self, icon_search_paths):
