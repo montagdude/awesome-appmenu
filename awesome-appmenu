@@ -31,7 +31,8 @@ except:
 class Launcher():
 
   # Exec field flags
-  field_codes = ["%f", "%F", "%u", "%U", "%c", "%k", "%i"] 
+  field_codes = ["%f", "%F", "%u", "%U", "%d", "%D", "%n", "%N", "%i", "%c", \
+                 "%k", "%v", "%m"]
 
   def __init__(self, launcherfile, use_icon=True, 
                icon_search_paths=["/usr/share/icons/hicolor"]):
@@ -90,14 +91,25 @@ class Launcher():
 
     f.close()
 
-  # Expands field codes in Exec key
+  # Expands field codes in Exec key. See the freedesktop spec:
+  # https://specifications.freedesktop.org/desktop-entry-spec/latest/ar01s06.html
   def expandFieldCodes(self):
     for code in self.field_codes:
 
       if self.Exec.find(code) != -1:
         if code == "%c":
-          if self.Name: self.Exec = self.Exec.replace(code, self.Name)
-          else: self.Exec = self.Exec.replace(code, "")
+
+          # Replace any variants of %c, quoted or not, with name in quotes
+          if self.Name: replacename = '"' + self.Name + '"'
+          else: replacename = ""
+
+          if self.Exec.find('"%c"') != -1: 
+            self.Exec = self.Exec.replace('"%c"', replacename)
+          if self.Exec.find("'%c'") != -1: 
+            self.Exec = self.Exec.replace("'%c'", replacename)
+          if self.Exec.find(code) != -1: 
+            self.Exec = self.Exec.replace(code, replacename)
+
         elif code == "%k": 
           if self.FilePath: self.Exec = self.Exec.replace(code, self.FilePath)
           else: self.Exec = self.Exec.replace(code, "")
@@ -108,6 +120,12 @@ class Launcher():
    
         # Other field codes are not relevant for launching from appmenu
         else: self.Exec = self.Exec.replace(code, "")
+
+    # Finally, remove extra spaces that may have been caused by removals
+    splitexec = self.Exec.split()
+    self.Exec = splitexec[0]
+    for i in range(1, len(splitexec)):
+      self.Exec += " " + splitexec[i] 
 
   # Finds icon by generic name
   def findIcon(self, icon_search_paths):
