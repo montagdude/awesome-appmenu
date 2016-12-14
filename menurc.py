@@ -26,3 +26,7 @@ categories = [ ["Utility",              "Accessories",  "applications-utilities"
 """ Favorite applications by name of .desktop file. 
     e.g., favorites = ["mozilla-firefox.desktop", "gimp.desktop"], etc. """
 favorites = []
+
+""" By default, entries with OnlyShowIn= (! awesome) will not be added. You can
+    override this here. """
+ignore_OnlyShowIn = False

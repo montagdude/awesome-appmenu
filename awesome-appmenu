@@ -54,7 +54,7 @@ class Launcher():
   # Reads info from launcher file
   def getInfo(self, launcherfile, use_icon):
 
-    self.FileName = launcherfile.split("/")[-1]
+    self.FileName = launcherfile.split("/")[-1].strip()
     self.FilePath = launcherfile
     f = open(launcherfile)
     for line in f:
@@ -88,6 +88,8 @@ class Launcher():
 
       elif splitline[0] == "NoDisplay":
         if (splitline[1].strip() == "true"): self.NoDisplay = True
+
+      elif splitline[0] == "OnlyShowIn": self.OnlyShowIn = splitline[1].strip()
 
     f.close()
 
@@ -229,7 +231,7 @@ class Menu():
 
   # Finds launchers and adds them to appropriate categories
   def getLaunchers(self, launcherpaths, use_icon=True, icon_search_paths=
-                   ["/usr/share/icons/hicolor"]):
+                   ["/usr/share/icons/hicolor"], ignore_OnlyShowIn=False):
 
     # See if there's a Miscellaneous category or create it if needed
     for i in range(self.NumCategories):
@@ -253,10 +255,17 @@ class Menu():
             newlauncher = Launcher(os.path.join(root, name), use_icon,
                                    icon_search_paths)
             
-            # Only register the launcher if it has an Exec= field and if it
-            # does not have NoDisplay=true
-            if (newlauncher.Exec and not newlauncher.NoDisplay):
-              self.assignLauncher(newlauncher)
+            # Don't register launcher if there is no Exec fied, if it has
+            # NoDisplay=true, or if it has OnlyShowIn != awesome (unless
+            # ignore_OnlyShowIn is enabled)
+            if not newlauncher.Exec: continue
+            if newlauncher.NoDisplay: continue
+            if not ignore_OnlyShowIn:
+              if newlauncher.OnlyShowIn:
+                if newlauncher.OnlyShowIn != "awesome": continue
+
+            # Assign launcher to appropriate category(ies)
+            self.assignLauncher(newlauncher)
 
   # Adds launcher to appropriate category(ies)
   def assignLauncher(self, launcher):
@@ -365,6 +374,7 @@ def load_config():
                ["System",      "System",      "applications-system"],
                ["Wine",        "Wine",        "wine"] ]
   favorites = []
+  ignore_OnlyShowIn = False
 
   # Read configuration
   if config:
@@ -382,8 +392,10 @@ def load_config():
       print("Warning: menurc.py does not have categories. Using default.")
 
     try: favorites = menurc.favorites
-    except AttributeError:
-      print("Warning: menurc.py does not have favorites. Using default (none).")
+    except AttributeError: pass
+
+    try: ignore_OnlyShowIn = menurc.ignore_OnlyShowIn
+    except AttributeError: pass
 
   # Warnings about any non-existent directories
   for directory in launcherpaths:
@@ -396,7 +408,7 @@ def load_config():
       print("Warning: search path " + directory + " does not exist:")
       print("No icons will be searched for there.")
 
-  return launcherpaths, iconpaths, categories, favorites
+  return launcherpaths, iconpaths, categories, favorites, ignore_OnlyShowIn
 
 ################################################################################
 # Prints usage info
@@ -427,7 +439,8 @@ if __name__ == "__main__":
     exit(1)
 
   # Load configuration file
-  launcherpaths, iconpaths, categories, favorites = load_config()
+  launcherpaths, iconpaths, categories, favorites, ignore_OnlyShowIn = \
+    load_config()
 
   # Create a list of categories
   if use_icon: print("Finding category icons ...")
@@ -440,7 +453,7 @@ if __name__ == "__main__":
   # Find launchers and add them to appropriate categories
   if use_icon: print("Finding launcher files and icons ...")
   else:        print("Finding launchers ...")
-  appmenu.getLaunchers(launcherpaths, use_icon, iconpaths)
+  appmenu.getLaunchers(launcherpaths, use_icon, iconpaths, ignore_OnlyShowIn)
 
   # Sort launchers
   print("Sorting launchers ...")
