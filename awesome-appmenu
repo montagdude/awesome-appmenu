@@ -203,18 +203,18 @@ class Category():
   # Sorts launchers
   def sortLaunchers(self):
 
-    # Create a list of launchers by name
-    launchernames = []
+    # Create a list of launchers by name, using FileName to distinguish
+    launcherdict = {}
     for launcher in self.Launchers:
-      launchernames.append(launcher.Name)
+      launcherdict.update({launcher.FileName: launcher.Name})
 
     # Sort the list and create a new self.Launchers list
-    launchernames.sort()
+    # http://www.saltycrane.com/blog/2007/09/how-to-sort-python-dictionary-by-keys/
     templaunchers = copy(self.Launchers)
     self.Launchers = []
-    for name in launchernames:
+    for key, value in sorted(launcherdict.iteritems(), key=lambda(k,v): (v,k)):
       for launcher in templaunchers:
-        if launcher.Name == name: 
+        if launcher.FileName == key: 
           self.Launchers.append(launcher)
           break
 
