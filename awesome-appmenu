@@ -74,12 +74,16 @@ class Launcher():
 
       elif splitline[0] == "Icon":
         if use_icon:
-          if ( (splitline[1].strip()[-4:] == ".png") or 
-               (splitline[1].strip()[-4:] == ".svg") or
-               (splitline[1].strip()[-4:] == ".jpg") ):
-            self.Icon = splitline[1].strip()
+          # Full path specified
+          if splitline[1][0] == "/": self.Icon = splitline[1].strip()
+          # Name with or without extension
           else:
-            self.IconGenericName = splitline[1].strip()
+            if ( (splitline[1].strip()[-4:] == ".png") or 
+                 (splitline[1].strip()[-4:] == ".svg") or
+                 (splitline[1].strip()[-4:] == ".jpg") ):
+              self.IconGenericName = splitline[1].strip()[:-4]
+            else:
+              self.IconGenericName = splitline[1].strip()
 
       elif splitline[0] == "Categories":
         self.Categories = splitline[1].split(";")
