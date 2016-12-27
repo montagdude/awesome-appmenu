@@ -44,6 +44,7 @@ class Launcher():
     self.Icon = None
     self.NoDisplay = False
     self.OnlyShowIn = None
+    self.Terminal = False
     self.Categories = []
    
     self.getInfo(launcherfile, use_icon)
@@ -94,6 +95,9 @@ class Launcher():
         if (splitline[1].strip() == "true"): self.NoDisplay = True
 
       elif splitline[0] == "OnlyShowIn": self.OnlyShowIn = splitline[1].strip()
+
+      elif splitline[0] == "Terminal":
+        if splitline[1].strip() == "true": self.Terminal = True
 
     f.close()
 
@@ -306,7 +310,7 @@ class Menu():
         print("Warning: could not find a launcher file named " + favorite + ".") 
 
   # Writes menu for awesomeWM
-  def write(self):
+  def write(self, terminal="xterm"):
 
     home = os.environ["HOME"]
     menufile = home + "/.config/awesome/appmenu.lua"
@@ -324,7 +328,10 @@ class Menu():
       if category.NumLaunchers == 0: continue
       f.write("appmenu." + category.Name + " = {\n")
       for launcher in category.Launchers:
-        f.write("    { '" + launcher.Name + "', '" + launcher.Exec + "'")
+        if launcher.Terminal:
+          f.write("    { '" + launcher.Name + "', '" + terminal + " -e " + 
+                  launcher.Exec + "'")
+        else: f.write("    { '" + launcher.Name + "', '" + launcher.Exec + "'")
         if launcher.Icon: 
           f.write(", '" + launcher.Icon + "'")
         f.write(" },\n")
@@ -334,7 +341,10 @@ class Menu():
     if len(self.Favorites) != 0:
       f.write("appmenu.Favorites = {\n")
       for favorite in self.Favorites:
-        f.write("    { '" + favorite.Name + "', '" + favorite.Exec + "'")
+        if favorite.Terminal:
+          f.write("    { '" + favorite.Name + "', '" + terminal + " -e " + 
+                  favorite.Exec + "'")
+        else: f.write("    { '" + favorite.Name + "', '" + favorite.Exec + "'")
         if favorite.Icon: 
           f.write(", '" + favorite.Icon + "'")
         f.write(" },\n")
@@ -378,6 +388,7 @@ def load_config():
                ["System",      "System",      "applications-system"],
                ["Wine",        "Wine",        "wine"] ]
   favorites = []
+  terminal = "xterm"
   ignore_OnlyShowIn = False
 
   # Read configuration
@@ -398,6 +409,9 @@ def load_config():
     try: favorites = menurc.favorites
     except AttributeError: pass
 
+    try: terminal = menurc.terminal
+    except AttributeError: pass
+
     try: ignore_OnlyShowIn = menurc.ignore_OnlyShowIn
     except AttributeError: pass
 
@@ -412,7 +426,8 @@ def load_config():
       print("Warning: search path " + directory + " does not exist:")
       print("No icons will be searched for there.")
 
-  return launcherpaths, iconpaths, categories, favorites, ignore_OnlyShowIn
+  return launcherpaths, iconpaths, categories, favorites, terminal, \
+         ignore_OnlyShowIn
 
 ################################################################################
 # Prints usage info
@@ -443,8 +458,8 @@ if __name__ == "__main__":
     exit(1)
 
   # Load configuration file
-  launcherpaths, iconpaths, categories, favorites, ignore_OnlyShowIn = \
-    load_config()
+  launcherpaths, iconpaths, categories, favorites, terminal, \
+    ignore_OnlyShowIn = load_config()
 
   # Create a list of categories
   if use_icon: print("Finding category icons ...")
@@ -469,4 +484,4 @@ if __name__ == "__main__":
     appmenu.createFavoritesList(favorites)
 
   # Write menu for awesomeWM
-  appmenu.write()
+  appmenu.write(terminal=terminal)

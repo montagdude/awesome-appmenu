@@ -27,6 +27,10 @@ categories = [ ["Utility",              "Accessories",  "applications-utilities"
     e.g., favorites = ["mozilla-firefox.desktop", "gimp.desktop"], etc. """
 favorites = []
 
+""" For launching terminal apps (Terminal=true in launcher). Will be launched
+    with 'terminal -e Exec'."""
+terminal = "xterm"
+
 """ By default, entries with OnlyShowIn= (! awesome) will not be added. You can
     override this here. """
 ignore_OnlyShowIn = False
