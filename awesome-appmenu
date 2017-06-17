@@ -35,7 +35,7 @@ class Launcher():
                  "%k", "%v", "%m"]
 
   def __init__(self, launcherfile, use_icon=True, 
-               icon_search_paths=["/usr/share/icons/hicolor"]):
+               icon_search_paths=["/usr/share/icons/hicolor"], verbose=False):
     self.Name = None
     self.FileName = None
     self.FilePath = None
@@ -46,6 +46,7 @@ class Launcher():
     self.OnlyShowIn = None
     self.Terminal = False
     self.Categories = []
+    self.verbose = verbose
    
     self.getInfo(launcherfile, use_icon)
     if (use_icon and self.IconGenericName and not self.NoDisplay): 
@@ -64,14 +65,22 @@ class Launcher():
       if splitline[0] == "Name":
         # If Name is being defined again, just go on (google chrome and 
         # Libreoffice do this)
-        if self.Name: break
-        else: self.Name = splitline[1].strip()
+        if self.Name:
+          if self.verbose:
+            print("Redefinition of Name in " + launcherfile + ".")
+          break
+        else:
+          self.Name = splitline[1].strip()
+          if self.verbose:
+            print("Name key for " + launcherfile + ":" + self.Name + ".")
 
       elif splitline[0] == "Exec":
         # Sometimes Exec lines have '=' if they set environment variables
         self.Exec = splitline[1].strip()
         for i in range(2, len(splitline)):
           self.Exec += "=" + splitline[i].strip()
+        if self.verbose:
+          print("Exec key for " + launcherfile + ":" + self.Exec + ".")
 
       elif splitline[0] == "Icon":
         if use_icon:
@@ -85,25 +94,45 @@ class Launcher():
               self.IconGenericName = splitline[1].strip()[:-4]
             else:
               self.IconGenericName = splitline[1].strip()
+          if self.verbose:
+            if self.IconGenericName:
+              print("Icon key for " + launcherfile + ":" +
+                    self.IconGenericName + ".")
+            else:
+              print("Icon key for " + launcherfile + ":" +
+                    self.Icon + ".")
 
       elif splitline[0] == "Categories":
         self.Categories = splitline[1].split(";")
+        if self.verbose:
+          print("Categories key for " + launcherfile + ":" + splitline[1] + ".")
         for i in range(len(self.Categories)):
           self.Categories[i] = self.Categories[i].strip()
 
       elif splitline[0] == "NoDisplay":
-        if (splitline[1].strip() == "true"): self.NoDisplay = True
+        if (splitline[1].strip() == "true"):
+          self.NoDisplay = True
+          if self.verbose:
+            print(launcherfile + " has NoDisplay set: skipping.")
 
-      elif splitline[0] == "OnlyShowIn": self.OnlyShowIn = splitline[1].strip()
+      elif splitline[0] == "OnlyShowIn":
+        self.OnlyShowIn = splitline[1].strip()
+        if self.verbose:
+          print("OnlyShowIn key for " + launcherfile + ": " +
+                self.OnlyShowIn + ".")
 
       elif splitline[0] == "Terminal":
-        if splitline[1].strip() == "true": self.Terminal = True
+        if splitline[1].strip() == "true":
+          if self.verbose:
+            print(launcherfile + " launches in a terminal.")
+          self.Terminal = True
 
     f.close()
 
   # Expands field codes in Exec key. See the freedesktop spec:
   # https://specifications.freedesktop.org/desktop-entry-spec/latest/ar01s06.html
   def expandFieldCodes(self):
+    if not self.Exec: return
     for code in self.field_codes:
 
       if self.Exec.find(code) != -1:
@@ -137,6 +166,9 @@ class Launcher():
     for i in range(1, len(splitexec)):
       self.Exec += " " + splitexec[i] 
 
+    if self.verbose:
+      print("Expanded field code for " + self.Name + ": " + self.Exec + ".")
+
   # Finds icon by generic name
   def findIcon(self, icon_search_paths):
 
@@ -145,13 +177,18 @@ class Launcher():
     for directory in icon_search_paths:
 
       # Skip any directory that doesn't exist
-      if not os.path.isdir(directory): continue
+      if not os.path.isdir(directory):
+        if self.verbose:
+          print("Icon search path " + directory + " does not exist: skipping.")
+        continue
 
       # Descend into directory
       for root, dirs, files in os.walk(directory):
         for name in files:
           if name[:-4] == self.IconGenericName:
             self.Icon = os.path.join(root, name)
+            if self.verbose:
+              print("Found icon for " + self.Name + ": " + self.Icon)
             break
         if self.Icon: break
       if self.Icon: break
@@ -161,7 +198,7 @@ class Launcher():
 class Category():
 
   def __init__(self, listed_name, name, use_icon=True, icon_generic_name=None,
-               icon_search_paths=["/usr/share/icons/hicolor"]):
+               icon_search_paths=["/usr/share/icons/hicolor"], verbose=False):
     self.ListedName = listed_name
     self.Name = name
     self.UseIcon = use_icon
@@ -169,6 +206,7 @@ class Category():
     self.Icon = None
     self.NumLaunchers = 0
     self.Launchers = []
+    self.verbose = verbose
 
     # Determine if icon_generic_name supplied is actually an icon
     if use_icon and icon_generic_name:
@@ -176,7 +214,9 @@ class Category():
            (icon_generic_name.strip()[-4:] == ".svg") or
            (icon_generic_name.strip()[-4:] == ".jpg") ):
         self.Icon = icon_generic_name
-        self.IconGenericName = None
+        self.IconGenericName = None 
+        if self.verbose:
+          print("Using supplied path for category " + self.Name + " icon.")
 
     if (use_icon and self.IconGenericName): self.findIcon(icon_search_paths)
 
@@ -188,13 +228,18 @@ class Category():
     for directory in icon_search_paths:
 
       # Skip any directory that doesn't exist
-      if not os.path.isdir(directory): continue
+      if not os.path.isdir(directory):
+        if self.verbose:
+          print("Icon search path " + directory + " does not exist: skipping.")
+        continue
 
       # Descend into directory
       for root, dirs, files in os.walk(directory):
         for name in files:
           if name[:-4] == self.IconGenericName:
             self.Icon = os.path.join(root, name)
+            if self.verbose:
+              print("Found icon for " + self.Name + " category: " + self.Icon)
             break
         if self.Icon: break
       if self.Icon: break
@@ -203,9 +248,13 @@ class Category():
   def addLauncher(self, launcher):
     self.Launchers.append(launcher)
     self.NumLaunchers += 1
+    if self.verbose:
+      print("Added " + launcher.Name + " to " + self.Name + ".")
 
   # Sorts launchers
   def sortLaunchers(self):
+    if self.verbose:
+      print("Sorting launchers for " + self.Name + " category.")
 
     # Create a list of launchers by name, using FileName to distinguish
     launcherdict = {}
@@ -222,20 +271,25 @@ class Category():
           self.Launchers.append(launcher)
           break
 
+    if self.verbose:
+      print("Finished sorting launchers for " + self.Name + " category.")
+
 ################################################################################
 # Menu: groups categories
 class Menu():
 
-  def __init__(self):
+  def __init__(self, verbose=False):
     self.Categories = []
     self.NumCategories = 0
     self.miscidx = -1
     self.Favorites = []
+    self.verbose = verbose
 
   # Adds a category
   def addCategory(self, category):
     self.Categories.append(category)
     self.NumCategories += 1
+    if self.verbose: print("Added category " + category.Name)
 
   # Finds launchers and adds them to appropriate categories
   def getLaunchers(self, launcherpaths, use_icon=True, icon_search_paths=
@@ -248,8 +302,11 @@ class Menu():
         break
     if self.miscidx == -1:
       self.addCategory(Category("Miscellaneous", "Miscellaneous", use_icon,
-                                "applications-other", icon_search_paths))
+                                "applications-other", icon_search_paths,
+                                verbose))
       self.miscidx = self.NumCategories - 1
+      if self.verbose: print("Added Miscellaneous category idx {:d}.".format(
+                              self.miscidx))
 
     # Find and group launchers into categories
     for directory in launcherpaths:
@@ -261,16 +318,26 @@ class Menu():
         for name in files:
           if name[-8:] == ".desktop":
             newlauncher = Launcher(os.path.join(root, name), use_icon,
-                                   icon_search_paths)
+                                   icon_search_paths, verbose)
             
-            # Don't register launcher if there is no Exec fied, if it has
+            # Don't register launcher if there is no Exec field, if it has
             # NoDisplay=true, or if it has OnlyShowIn != awesome (unless
             # ignore_OnlyShowIn is enabled)
-            if not newlauncher.Exec: continue
-            if newlauncher.NoDisplay: continue
+            if not newlauncher.Exec: 
+              if self.verbose:
+                print(newlauncher.Name + " has no Exec field: skipping.")
+              continue
+            if newlauncher.NoDisplay:
+              if self.verbose:
+                print(newlauncher.Name + " has NoDisplay set: skipping.")
+              continue
             if not ignore_OnlyShowIn:
               if newlauncher.OnlyShowIn:
-                if newlauncher.OnlyShowIn != "awesome": continue
+                if newlauncher.OnlyShowIn != "awesome":
+                  if self.verbose:
+                    print(newlauncher.Name + " is only shown in " +
+                          newlauncher.OnlyShowIn + ": skipping.")
+                  continue
 
             # Assign launcher to appropriate category(ies)
             self.assignLauncher(newlauncher)
@@ -284,10 +351,15 @@ class Menu():
         if category_name == category.ListedName:
           category.addLauncher(launcher)
           launcher_grouped = True
+          if self.verbose:
+            print("Assigned " + launcher.Name + " to " + category.Name +
+                  " category.")
 
     # Put it in Miscellaneous category if nothing else fits
     if not launcher_grouped:
       self.Categories[self.miscidx].addLauncher(launcher)
+      if self.verbose:
+        print("Assigned " + launcher.Name + " to Miscellaneous category.")
 
   # Sorts launchers in each category
   def sortLaunchers(self):
@@ -304,6 +376,8 @@ class Menu():
           if launcher.FileName == favorite:
             found = True
             self.Favorites.append(launcher)
+            if self.verbose:
+              print("Adding " + launcher.Name + " to favorites.")
             break
         if found: break
       if not found:
@@ -325,10 +399,20 @@ class Menu():
 
     # Write categories as long as they are not empty
     for category in self.Categories:
-      if category.NumLaunchers == 0: continue
+      if category.NumLaunchers == 0:
+        if self.verbose:
+          print(category.Name + " category is empty: it will not be written.")
+        continue
+      else:
+        if self.verbose:
+          print("Writing category " + category.Name + ".")
       f.write("appmenu." + category.Name + " = {\n")
       for launcher in category.Launchers:
+        if self.verbose:
+          print("Writing " + launcher.Name + " to " + category.Name + ".")
         if launcher.Terminal:
+          if self.verbose:
+            print(launcher.Name + " launches in a terminal.")
           f.write("    { '" + launcher.Name + "', '" + terminal + " -e " + 
                   launcher.Exec + "'")
         else: f.write("    { '" + launcher.Name + "', '" + launcher.Exec + "'")
@@ -339,9 +423,15 @@ class Menu():
 
     # Write favorites list if not empty
     if len(self.Favorites) != 0:
+      if self.verbose:
+        print("Writing favorites list.")
       f.write("appmenu.Favorites = {\n")
       for favorite in self.Favorites:
+        if self.verbose:
+          print("Writing " + favorite.Name + " to favorites.")
         if favorite.Terminal:
+          if self.verbose:
+            print(favorite.Name + " launches in a terminal.")
           f.write("    { '" + favorite.Name + "', '" + terminal + " -e " + 
                   favorite.Exec + "'")
         else: f.write("    { '" + favorite.Name + "', '" + favorite.Exec + "'")
@@ -349,6 +439,8 @@ class Menu():
           f.write(", '" + favorite.Icon + "'")
         f.write(" },\n")
       f.write("}\n\n")
+    else:
+      if self.verbose: print("Favorites list is empty: it will not be written.")
 
     # Write menu
     f.write("appmenu.Appmenu = {\n")
@@ -436,26 +528,35 @@ def print_help():
   print("Usage: " + sys.argv[0] + " OPTION")
   print("Options:")
   print("  --no-icons, -n: generate a menu without icons")
-  print("  --help, -h: show this help screen")
+  print("  --verbose, -v:  print verbose output for debugging")
+  print("  --help, -h:     show this usage information")
+
+################################################################################
+# Parses command line arguments
+def parse_clos(argv):
+
+  use_icon = True
+  verbose = False
+  for i in range(1, len(argv)):
+    arg = argv[i]
+    if (arg == "--help") or (arg == "-h"):
+      print_help()
+      exit(0)
+    elif (arg == "--no-icons") or (arg == "-n"): use_icon = False
+    elif (arg == "--verbose") or (arg == "-v"): verbose = True
+    else:
+      print("Unrecognized option " + arg + ".")
+      print_help()
+      exit(1)
+
+  return use_icon, verbose
 
 ################################################################################
 # Main program: generates an application menu for Awesome
 if __name__ == "__main__":
 
   # Get command line arguments
-  use_icon = True
-  if len(sys.argv) == 2:
-    if (sys.argv[1] == "--no-icons") or (sys.argv[1] == "-n"):
-      use_icon = False
-    elif (sys.argv[1] == "--help") or (sys.argv[1] == "-h"):
-      print_help()
-      exit(0)
-    else:
-      print_help()
-      exit(1)
-  elif len(sys.argv) > 2:
-    print_help()
-    exit(1)
+  use_icon, verbose = parse_clos(sys.argv)
 
   # Load configuration file
   launcherpaths, iconpaths, categories, favorites, terminal, \
@@ -463,11 +564,11 @@ if __name__ == "__main__":
 
   # Create a list of categories
   if use_icon: print("Finding category icons ...")
-  appmenu = Menu()
+  appmenu = Menu(verbose)
   ncategories = len(categories)
   for i in range(ncategories):
     appmenu.addCategory(Category(categories[i][0], categories[i][1], use_icon,
-                                 categories[i][2], iconpaths))
+                                 categories[i][2], iconpaths, verbose))
 
   # Find launchers and add them to appropriate categories
   if use_icon: print("Finding launcher files and icons ...")

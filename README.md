@@ -22,7 +22,11 @@ Type make install or make install DESTDIR=/target/install/directory (the latter 
 
 Running:
 
-Just type awesome-appmenu. The file appmenu.lua will be placed in $HOME/.config/awesome. You can also run awesome-appmenu --no-icons or awesome-appmenu -n to not include icons in the menu.
+Just type awesome-appmenu. The file appmenu.lua will be placed in $HOME/.config/awesome.
+Command line options:
+  --no-icons, -n: Do not include icons in the menu
+  --verbose, -v:  Print verbose output for debugging
+  --help, -h:     Show usage information
 
 ================================================================================
 
