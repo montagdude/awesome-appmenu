@@ -265,7 +265,7 @@ class Category():
     # http://www.saltycrane.com/blog/2007/09/how-to-sort-python-dictionary-by-keys/
     templaunchers = copy(self.Launchers)
     self.Launchers = []
-    for key, value in sorted(launcherdict.iteritems(), key=lambda(k,v): (v,k)):
+    for key, value in sorted(launcherdict.items(), key=lambda item: (item[1], item[0]):
       for launcher in templaunchers:
         if launcher.FileName == key: 
           self.Launchers.append(launcher)
