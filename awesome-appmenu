@@ -202,7 +202,7 @@ class Launcher():
 class Category():
 
   def __init__(self, listed_name, name, use_icon=True, icon_generic_name=None,
-               icon_search_paths=["/usr/share/icons/hicolor"], verbose=False):
+               icon_search_paths=["/usr/share/icons/hicolor"], verbose=False, subcat_of=""):
     self.ListedName = listed_name
     self.Name = name
     self.UseIcon = use_icon
@@ -211,6 +211,7 @@ class Category():
     self.NumLaunchers = 0
     self.Launchers = []
     self.verbose = verbose
+    self.SubCat_of = ""
 
     # Determine if icon_generic_name supplied is actually an icon
     if use_icon and icon_generic_name:
@@ -223,6 +224,9 @@ class Category():
           print("Using supplied path for category " + self.Name + " icon.")
 
     if (use_icon and self.IconGenericName): self.findIcon(icon_search_paths)
+
+    if subcat_of != "":
+      self.SubCat_of = subcat_of
 
   # Finds icon by generic name
   def findIcon(self, icon_search_paths):
@@ -307,7 +311,7 @@ class Menu():
     if self.miscidx == -1:
       self.addCategory(Category("Miscellaneous", "Miscellaneous", use_icon,
                                 "applications-other", icon_search_paths,
-                                verbose))
+                                verbose, ""))
       self.miscidx = self.NumCategories - 1
       if self.verbose: print("Added Miscellaneous category idx {:d}.".format(
                               self.miscidx))
@@ -411,6 +415,14 @@ class Menu():
         if self.verbose:
           print("Writing category " + category.Name + ".")
       f.write("appmenu." + category.Name + " = {\n")
+      # Write subcategories directly into main categories
+      for subcategory in self.Categories:
+        if subcategory.NumLaunchers == 0: continue
+        if subcategory.SubCat_of == category.Name:
+          f.write("    { '" + subcategory.Name + "', appmenu." + subcategory.Name)
+          if category.Icon:
+            f.write(", '" + subcategory.Icon + "'")
+          f.write(" },\n")
       for launcher in category.Launchers:
         if self.verbose:
           print("Writing " + launcher.Name + " to " + category.Name + ".")
@@ -450,6 +462,8 @@ class Menu():
     f.write("appmenu.Appmenu = {\n")
     for category in self.Categories:
       if category.NumLaunchers == 0: continue
+      # Don't write subdirectorys to main list
+      if category.SubCat_of != "": continue
       f.write("    { '" + category.Name + "', appmenu." + category.Name)
       if category.Icon:
         f.write(", '" + category.Icon + "'")
@@ -472,17 +486,18 @@ def load_config():
   launcherpaths = ["/usr/share/applications", 
                    home + "/.local/share/applications"]
   iconpaths = ["/usr/share/icons/hicolor"]
-  categories = [ ["Utility",   "Accessories", "applications-utilities"],
-               ["Development", "Development", "applications-development"],
-               ["Education",   "Education",   "applications-science"],
-               ["Game",        "Games",       "applications-games"],
-               ["Graphics",    "Graphics",    "applications-graphics"],
-               ["Network",     "Internet",    "applications-internet"],
-               ["Office",      "Office",      "applications-office"],
-               ["AudioVideo",  "MultiMedia",  "applications-multimedia"],
-               ["Settings",    "Settings",    "applications-accessories"],
-               ["System",      "System",      "applications-system"],
-               ["Wine",        "Wine",        "wine"] ]
+  #Categories    ["Category",    "Category name","Icon",                    "SubCategory of"]
+  categories = [ ["Utility",     "Accessories", "applications-utilities",   ""],
+                 ["Development", "Development", "applications-development", ""],
+                 ["Education",   "Education",   "applications-science",     ""],
+                 ["Game",        "Games",       "applications-games",       ""],
+                 ["Graphics",    "Graphics",    "applications-graphics",    ""],
+                 ["Network",     "Internet",    "applications-internet",    ""],
+                 ["Office",      "Office",      "applications-office",      ""],
+                 ["AudioVideo",  "MultiMedia",  "applications-multimedia",  ""],
+                 ["Settings",    "Settings",    "applications-accessories", ""],
+                 ["System",      "System",      "applications-system",      ""],
+                 ["Wine",        "Wine",        "wine",                     ""] ]
   favorites = []
   terminal = "xterm"
   ignore_OnlyShowIn = False
@@ -572,7 +587,7 @@ if __name__ == "__main__":
   ncategories = len(categories)
   for i in range(ncategories):
     appmenu.addCategory(Category(categories[i][0], categories[i][1], use_icon,
-                                 categories[i][2], iconpaths, verbose))
+                                 categories[i][2], iconpaths, verbose, categories[i][3]))
 
   # Find launchers and add them to appropriate categories
   if use_icon: print("Finding launcher files and icons ...")
