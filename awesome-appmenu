@@ -166,6 +166,10 @@ class Launcher():
     for i in range(1, len(splitexec)):
       self.Exec += " " + splitexec[i] 
 
+    # Replace ' with \\' to prevent syntax errors on config load
+    if self.Exec.find("'") != -1:
+      self.Exec = self.Exec.replace("'", "\\'")
+
     if self.verbose:
       print("Expanded field code for " + self.Name + ": " + self.Exec + ".")
 
