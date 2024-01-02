@@ -13,16 +13,17 @@ source=("${url}/archive/refs/tags/${pkgver}.tar.gz")
 
 md5sums=("SKIP")
 build() {
-    return 0   
+      
+cd "${srcdir}/${pkgname}-${pkgver}"
+
 }
 
 package(){
 
 cd "${srcdir}/${pkgname}-${pkgver}"
-
 #chmod +w /usr/share/
     	
-make DESTDIR="pkgdir" install
+make DESTDIR="${pkgdir}" install
 
 }
 
