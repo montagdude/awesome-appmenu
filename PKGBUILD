@@ -4,7 +4,7 @@ pkgrel="1"
 pkgdesc="A tool to create a menu of installed applications on the awesome default bar"
 
 arch=('any')
-url="https://github.com/sharedordaz/awesome-appmenu"
+url="https://github.com/sharedordaz/Shared-AppMenu"
 licence=('GPL-3.0')
 depends=("python" "adwaita-icon-theme" "awesome")
 makedepends=("git" )
