@@ -19,29 +19,38 @@ This application is a python script that extract the icons on your system, and c
 * Searches recursively for launchers in specified search paths
 * Properly ignores .desktop files with NoDisplay=true, and does not write empty categories
 * Ungrouped launchers are automatically put into a Miscellaneous category
-
+* Installable as a package on Arch Linux
 
 ## Installation:
 
-Clone the package
+1. Clone the package
 
 ```
-git clone https://github.com/sharedordaz/Shared-AppMenu
+git clone https://github.com/sharedordaz/Shared-AwesomeAppMenu
 ```
 
-1. Make the package
+2. Make the package
 
 ```
 sudo make install
 ```
 
-2. Run the initial script
+**TO ARCH LINUX AND PACMAN BASED SYSTEMS ONLY**
+
+Instead of writing the command above, write this:
+
+```
+makepkg -si
+```
+This will make appear this package on your pacman packages
+
+3. Run the initial script
 
 ```
 awesome-appmenu
 ```
 
-3. Write the configuration on `~/.config/awesome/rc.lua` or where is your `rc.lua` awesome config file. Write this code at the begginig of the file
+4. Write the configuration on `~/.config/awesome/rc.lua` or where is your `rc.lua` awesome config file. Write this code at the begginig of the file
 
 
 ```lua
@@ -52,7 +61,7 @@ local appmenu = require("appmenu")
 
 ```
 
-4. Copy and paste `{ "applications", appmenu.Appmenu }` to this fragment of the code, so it looks like that
+5. Copy and paste `{ "applications", appmenu.Appmenu }` to this fragment of the code, so it looks like that
 ```lua
 ~/.config/awesome/rc.lua
 ------------------------
@@ -64,7 +73,7 @@ mymainmenu = awful.menu({ items = { { "awesome", myawesomemenu, beautiful.awesom
                         })
 
 ```
-5. OPTIONAL: Write a command to keep updating the apps you install each session. You can write the flags you want.
+6. OPTIONAL: Write a command to keep updating the apps you install each session. You can write the flags you want.
 
 ```
 ~/.config/awesome/rc.lua
