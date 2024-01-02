@@ -1,12 +1,20 @@
 PREFIX=/usr
 TARGET=awesome-appmenu
 
-install:
-	install -d -m 0755 $(DESTDIR)$(PREFIX)/bin
-	install -d -m 0755 $(DESTDIR)$(PREFIX)/share/awesome-appmenu
-	install -m 0755 $(TARGET) $(DESTDIR)$(PREFIX)/bin/$(TARGET)
-	install -m 0644 menurc.py $(DESTDIR)$(PREFIX)/share/awesome-appmenu/menurc.py
+all:
+	@echo Run \'make install\' to install awesome-appmenu
 
+install:
+	@echo "INSTALLING AWESOME-APPMENU"
+	@mkdir -p $(DESTDIR)$(PREFIX)/bin
+	@mkdir -p $(DESTDIR)$(PREFIX)/share/awesome-appmenu
+	@echo "DIRECTORIES CREATED, INSTALLING PACKAGES..."
+	@cp -p $(TARGET) $(DESTDIR)$(PREFIX)/bin/$(TARGET)
+	@cp -p menurc.py $(DESTDIR)$(PREFIX)/share/awesome-appmenu/menurc.py
+	
 uninstall:
-	rm $(DESTDIR)$(PREFIX)/bin/$(TARGET)
-	rm $(DESTDIR)$(PREFIX)/share/awesome-appmenu/menurc.py
+	@echo "UNINSTALLING AWESOME-APPMENU"
+	@rm -rf $(DESTDIR)$(PREFIX)/bin/$(TARGET)
+	@rm -rf $(DESTDIR)$(PREFIX)/share/awesome-appmenu/menurc.py
+
+
