@@ -1,5 +1,8 @@
 # Shared App Menu
-
+##Installation
+##Features of Shared App Menu
+##Instalation
+##Flags and configuration
 
 Shared App Menu is a tool forked from the unmantained  https://github.com/montagdude/awesome-appmenu. 
 
@@ -8,7 +11,7 @@ This application is a python script that extraxt the icons on your ssystem, and 
 
 To modify the default settings, edit the variables launcherpaths, iconpaths, and categories in $HOME/.config/awesome-appmenu/menurc.py. launcherpaths and iconpaths are searched in the order listed in this file, so list them in order of your preference. Categories will appear in the menu in the order they are listed in the config file. A sample configuration is supplied and installed by default at /usr/share/awesome-appmenu/menurc.py when you run make install.
 
-##Features of awesome-appmenu:
+##Features of Shared App Menu:
 * Supports icons
 * Fully configurable search paths for launchers and icons
 * Fully configurable categories
