@@ -13,8 +13,6 @@ source=("${url}/archive/refs/tags/${pkgver}.tar.gz")
 
 md5sums=("SKIP")
 build() {
-    cd "${srcdir}/${pkgname}-${pkgver}"
-
     return 0   
 }
 
