@@ -1,5 +1,5 @@
 pkgname="Shared-AwesomeAppMenu"
-pkgver="1.0"
+pkgver="1.1"
 pkgrel="1"
 pkgdesc="A Python tool to display the applications menu on the standard Awesome Bar"
 
