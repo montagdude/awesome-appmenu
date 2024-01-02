@@ -1,17 +1,17 @@
-# Shared App Menu
+# Shared Awesome App Menu
 
-Shared App Menu is a tool forked from the unmantained  https://github.com/montagdude/awesome-appmenu. 
+Shared Awesome App Menu is a tool forked from the unmantained  https://github.com/montagdude/awesome-appmenu. 
 
-This application is a python script that extraxt the icons on your ssystem, and creates a sorted categories menu on $HOME/.config/awesome-appmenu/appmenu.lua
+This application is a python script that extract the icons on your system, and creates a sorted categories menu on $HOME/.config/awesome-appmenu/appmenu.lua
 
 
 ## Table of Contents
-- [Features of Shared App Menu](#features-of-shared-app-menu)
+- [Features](#features)
   - [Installation](#installation)
   - [Flags and Configuration](#flags-and-configuration)
   - [Screenshot](#screenshot)
 
-## Features of Shared App Menu:
+## Features:
 * Supports icons
 * Fully configurable search paths for launchers and icons
 * Fully configurable categories

@@ -1,35 +1,31 @@
-pkgname="awesome-appmenu"
-pkgver="0.1"
+pkgname="Shared-AwesomeAppMenu"
+pkgver="1.0"
 pkgrel="1"
-pkgdesc="A tool to create a menu of installed applications on the awesome default bar"
+pkgdesc="A Python tool to display the applications menu on the standard Awesome Bar"
 
 arch=('any')
-url="https://github.com/sharedordaz/Shared-AppMenu"
-licence=('GPL-3.0')
+url="https://github.com/sharedordaz/Shared-AwesomeAppMenu"
+licence=('GPL3')
 depends=("python" "adwaita-icon-theme" "awesome")
 makedepends=("git" )
 
-source=("${url}/archive/v${pkgver}.tar.gz")
-#source=("${pkgname}"
-#        "Makefile"
-#        "README.md"
-#        "LICENSE"
-#        "awesome-appmenu.png"
-#        "menurc.py"
-#        "menurc.pyc")
+source=("${url}/archive/refs/tags/${pkgver}.tar.gz")
 
 md5sums=("SKIP")
-build() (return 0)
+build() {
+    cd "${srcdir}/${pkgname}-${pkgver}"
 
-package()(
+    return 0   
+}
 
-#cd "${srcdir}/${pkgname}-${pkgver}.tar.gz"
+package(){
+
+cd "${srcdir}/${pkgname}-${pkgver}"
 
 #chmod +w /usr/share/
     	
 make DESTDIR="pkgdir" install
 
-
-)
+}
 
 
