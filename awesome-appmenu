@@ -70,7 +70,7 @@ class Launcher():
             print("Redefinition of Name in " + launcherfile + ".")
           break
         else:
-          self.Name = splitline[1].strip()
+          self.Name = splitline[1].strip().replace("'", "\\'")
           if self.verbose:
             print("Name key for " + launcherfile + ":" + self.Name + ".")
 
